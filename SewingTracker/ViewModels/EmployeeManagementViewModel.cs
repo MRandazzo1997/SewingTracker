@@ -154,6 +154,7 @@ namespace SewingTracker.ViewModels
             {
                 var barcodeData = SelectedEmployee.EmployeeBarcode;
                 GeneratedBarcodeImage = _barcodeService.GenerateBarcodeImage(barcodeData);
+                GeneratedBarcodeImage.Save("barcode.png",System.Drawing.Imaging.ImageFormat.Png);
 
                 ShowSuccess($"Barcode generated for {SelectedEmployee.Name}");
             }

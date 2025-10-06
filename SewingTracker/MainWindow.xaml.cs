@@ -38,10 +38,12 @@ namespace SewingTracker
             // Register services
             services.AddTransient<IBarcodeService, BarcodeService>();
             services.AddTransient<IScanningService, ScanningService>();
+            services.AddTransient<IReceiptService, ReceiptService>();
 
             // Register ViewModels
             services.AddTransient<ScanningViewModel>();
             services.AddTransient<EmployeeManagementViewModel>();
+            services.AddTransient<ReceiptRegistrationViewModel>();
         }
 
         private void InitializeDatabase()
@@ -56,7 +58,7 @@ namespace SewingTracker
             // Get the main tab control
             var tabControl = FindName("MainTabControl") as System.Windows.Controls.TabControl;
 
-            if (tabControl != null)
+            if (tabControl != null && tabControl.Items.Count >= 3)
             {
                 // Set DataContext for Work Scanning tab
                 var scanningTab = tabControl.Items[0] as System.Windows.Controls.TabItem;
@@ -70,6 +72,13 @@ namespace SewingTracker
                 if (employeeTab != null)
                 {
                     employeeTab.DataContext = _serviceProvider.GetRequiredService<EmployeeManagementViewModel>();
+                }
+
+                // Set DataContext for Receipt Registration tab (index 2)
+                var receiptTab = tabControl.Items[2] as System.Windows.Controls.TabItem;
+                if (receiptTab != null)
+                {
+                    receiptTab.DataContext = _serviceProvider.GetRequiredService<ReceiptRegistrationViewModel>();
                 }
             }
         }

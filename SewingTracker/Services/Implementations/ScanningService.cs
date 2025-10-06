@@ -26,9 +26,10 @@ namespace SewingTracker.Services.Implementations
                 if (parsedData.Type != "EMPLOYEE")
                     throw new ArgumentException("Invalid employee barcode");
 
-                // Deserialize the dynamic data into a concrete type
-                var employeeData = JsonSerializer.Deserialize<Dictionary<string, object>>(parsedData.Data);
-                var employeeId = Convert.ToInt32(employeeData["Id"]);
+                // Extract employee ID from EAN-13 barcode
+                // Format: 001 + 9-digit employee ID + check digit
+                string employeeIdStr = barcodeData.Substring(3, 9);
+                int employeeId = int.Parse(employeeIdStr);
 
                 return await _context.Employees
                     .FirstOrDefaultAsync(e => e.Id == employeeId && e.IsActive);
@@ -52,31 +53,28 @@ namespace SewingTracker.Services.Implementations
                 if (parsedData.Type != "RECEIPT")
                     throw new ArgumentException("Invalid receipt barcode");
 
-                // Deserialize the dynamic data into a concrete type
-                var receiptData = JsonSerializer.Deserialize<Dictionary<string, object>>(parsedData.Data);
-                var clothId = receiptData["ClothId"]?.ToString();
-
                 // Use the extracted value in the LINQ query
                 var existingCloth = await _context.Cloths
-                    .FirstOrDefaultAsync(c => c.ClothId == clothId);
+                    .FirstOrDefaultAsync(c => c.ReceiptBarcode == barcodeData);
 
                 if (existingCloth != null)
                     return existingCloth;
 
                 // Create new cloth record if not exists
-                var newCloth = new Cloth
-                {
-                    ClothId = clothId,
-                    Description = receiptData["Description"]?.ToString(),
-                    Price = Convert.ToDecimal(receiptData["Price"]),
-                    ReceiptDate = DateTime.Parse(receiptData["Date"]?.ToString()),
-                    ReceiptBarcode = barcodeData
-                };
+                //var newCloth = new Cloth
+                //{
+                //    ClothId = clothId,
+                //    Description = receiptData["Description"]?.ToString(),
+                //    Price = Convert.ToDecimal(receiptData["Price"]),
+                //    ReceiptDate = DateTime.Parse(receiptData["Date"]?.ToString()),
+                //    ReceiptBarcode = barcodeData
+                //};
 
-                _context.Cloths.Add(newCloth);
-                await _context.SaveChangesAsync();
+                //_context.Cloths.Add(newCloth);
+                //await _context.SaveChangesAsync();
 
-                return newCloth;
+                //return newCloth;
+                throw new ArgumentException("Cloth not found. Please register this receipt first.");
             }
             catch
             {
