@@ -33,7 +33,7 @@ namespace SewingTracker.Services.Implementations
             // Next 9 digits = employee ID (padded)
             // Last digit = check digit (calculated automatically)
 
-            string companyPrefix = "001"; // Employee identifier
+            string companyPrefix = "101"; // Employee identifier - if EAN_13 barcode starts with 0, the first digit is omitted because it is read as an UPC-A barcode (12 digits)
             string employeeId = employee.Id.ToString().PadLeft(9, '0');
             string barcodeWithoutChecksum = companyPrefix + employeeId;
 
@@ -81,7 +81,7 @@ namespace SewingTracker.Services.Implementations
 
                 // Parse barcode type based on prefix
                 string prefix = barcodeData.Substring(0, 3);
-                string type = prefix == "001" ? "EMPLOYEE" : prefix == "002" ? "RECEIPT" : "UNKNOWN";
+                string type = prefix == "101" ? "EMPLOYEE" : prefix == "002" ? "RECEIPT" : "UNKNOWN";
 
                 if (type == "UNKNOWN")
                     throw new ArgumentException("Unknown barcode prefix");
